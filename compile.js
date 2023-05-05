@@ -29,8 +29,8 @@ let input = {
             }
         }
     }
-}; 
+};
 
-var output = JSON.parse(solc.compile(JSON.stringify(input)));
+let output = JSON.parse(solc.compile(JSON.stringify(input)));
 //console.log(output.contracts['Student.sol']['Student'].evm.bytecode);
 module.exports = output.contracts['Student.sol']['Student'];
