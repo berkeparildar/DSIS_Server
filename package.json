@@ -2,9 +2,10 @@
   "name": "dsis_server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "init.js",
   "scripts": {
     "start": "node init.js",
+    "dev": "env-cmd node --watch init.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
