@@ -74,7 +74,7 @@ const enroll = async (name, number) => {
     await userRef.set({
         name: name,
         contract: address,
-        email: nameArray[0] + nameArray[1] + '@dsis.com',
+        email: nameArray[0] + '.' + nameArray[1] + '@dsis.com',
     })
     return address;
 }
