@@ -56,7 +56,6 @@ app.post('/course-letter-grade', (req, res) => {
 app.post('/course-eval-grade', (req, res) => {
     const {studentId, termIndex, courseID, evalIndex, evalGrade} = req.body;
     setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then(evalIndex => res.send(`Evaluation of ${evalIndex} eval is set letter grade set!`));
-    
 });
 
 app.post('/add-course', (req, res) => {
@@ -149,7 +148,7 @@ const setCourseLetterGrade = async (studentNo, termIndex, courseID, letterGrade)
 }
 
 const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, evalGrade) => {
-    let studentAddress;
+    let studentAddress = '';
     await studentsRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             if (studentNo === doc.id) {
@@ -235,3 +234,9 @@ const addTerm = async (studentNo, year, season) => {
         }
     });
 }
+
+/*
+const checkEvaluation = async (studentNo, termIndex, courseID) => {
+    setCourseOverallGrade()
+    setCourseLetterGrade()
+}*/
