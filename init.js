@@ -63,7 +63,7 @@ app.post('/add-course', (req, res) => {
     const {
         schoolId, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames
     } = req.body;
-    addCourse(schoolId, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames).then(() => res.send('Add course request received'));
+    addCourse(schoolId, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalNames, evalWeights).then(() => res.send('Add course request received'));
 })
 
 app.listen(process.env.port || 3000, () => {
