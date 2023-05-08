@@ -213,7 +213,7 @@ const addTerm = async (studentNo, year, season) => {
     await studentsRef.get()
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                if (studentNo === doc.id) {
+                if (studentNo == doc.id) {
                     console.log(`${doc.id} => ${doc.data().contract}`);
                     studentAddress = doc.data().contract;
                     console.log(studentAddress);
