@@ -4,66 +4,67 @@ pragma solidity ^0.8.19;
 struct EvaluationCriterion {
         string name;
         uint weight;
+        uint grade;
     }
     
 contract Course {
     string public name;
-    uint public credit;
-    uint public hour;
-    uint public grade;
-    string public courseCode;
-    string public letterGrade;
     uint public courseID;
+    string public courseCode;
+    string public instructor;
+    uint public credit;
+    uint public overallGrade;
+    string public letterGrade;
     uint public evaluationCount;
-
+    EvaluationCriterion[] public evaluationCriteria;
 
     constructor(
         string memory _name,
-        uint _credit,
-        uint _hour,
-        string memory _code,
         uint _courseID,
+        string memory _courseCode,
+        string memory _instructor,
+        uint _credit,
         uint _evalCount,
         string[] memory _evalNames,
         uint[] memory _evalWeights
     ) {
         name = _name;
-        credit = _credit;
-        hour = _hour;
-        courseCode = _code;
         courseID = _courseID;
+        courseCode = _courseCode;
+        instructor = _instructor;
+        credit = _credit;
         evaluationCount = _evalCount;
 
         for (uint256 index = 0; index < evaluationCount ; index++) {
             evaluationCriteria.push(EvaluationCriterion({
                 name: _evalNames[index],
-                weight: _evalWeights[index]
+                weight: _evalWeights[index],
+                grade: 101
             }));
         }
     }
 
-    
-
-    EvaluationCriterion[] public evaluationCriteria;
-
-    function setGrade(uint _grade) public{
-        grade = _grade;
+    function setOverallGrade(uint _overallGrade) public{
+        overallGrade = _overallGrade;
     }
 
-    function getGrade() public view returns (uint) {
-        return grade;
+    function getOverallGrade() public view returns (uint) {
+        return overallGrade;
     }
 
-    function getEvalCount() public view returns (uint) {
-        return evaluationCount;
-    }
-    
-
-    function getWeightNames() public view returns (EvaluationCriterion[] memory) {
-        return evaluationCriteria;
+    function setLetterGrade(string memory _letterGrade) public{
+        letterGrade = _letterGrade;
     }
 
-     function getCourseID() public view returns (uint) {
+    function getLetterGrade() public view returns (string memory) {
+        return letterGrade;
+    }
+
+    function setEvaluationGrade(uint _index, uint _evalGrade) public{
+        evaluationCriteria[_index].grade = _evalGrade;
+    }
+
+    function getCourseID() view public returns (uint) {
         return courseID;
     }
 }

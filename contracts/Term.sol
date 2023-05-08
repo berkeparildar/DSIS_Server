@@ -10,8 +10,8 @@ contract Term {
         season = _season;
     }
 
-    function addCourse(string memory _name, uint _credit, uint _hours, string memory _code, uint _id, uint _evalcount, uint[] memory _weights, string[] memory _names) public {
-        Course course = new Course(_name, _credit, _hours, _code, _id, _evalcount, _names, _weights);
+    function addCourse(string memory _courseName, uint _courseID, string memory _courseCode, string memory _instructor, uint _courseCredit, uint _evalCount, string[] memory _evalNames, uint[] memory _evalWeights) public {
+        Course course = new Course(_courseName, _courseID, _courseCode, _instructor, _courseCredit, _evalCount, _evalNames, _evalWeights);
         courses.push(course); 
     }
 

@@ -6,12 +6,42 @@ import "./Term.sol";
 
 contract Student {
     string public name;
+    string public faculty;
+    string public department;
+    uint public regYear; 
     uint256 id;
     Term[] public terms;
 
-    constructor(string memory _name, uint256 _id) {
+    constructor(string memory _name, uint _id, string memory _faculty, string memory _department, uint _regYear) {
         name = _name;
         id = _id;
+        faculty = _faculty;
+        department = _department;
+        regYear = _regYear;
+    }
+
+    function getName()view public returns (string memory) {
+        return name;
+    }
+
+    function getFaculty()view public returns (string memory) {
+        return faculty;
+    }
+
+    function getDepartment()view public returns (string memory) {
+        return department;
+    }
+
+    function getRegYear() view public returns (uint) {
+        return regYear;
+    }
+
+    function getID() view public returns (uint) {
+        return id;
+    }
+
+    function getTerms() view public returns (Term[] memory) {
+        return terms;
     }
 
     function addTerm(uint _year, string memory _season) public {
@@ -19,20 +49,31 @@ contract Student {
         terms.push(term);
     }
 
-    function getw() public view returns (EvaluationCriterion[] memory){
-        return terms[0].getCourses()[0].getWeightNames();
+    function addCourse(uint _termIndex, string memory _courseName, uint _courseID, string memory
+        _courseCode, string memory _instructor, uint _credit,  uint _evalCount, string[] memory _evalNames, uint[] memory _evalWeights) public {
+        terms[_termIndex].addCourse(_courseName, _courseID, _courseCode, _instructor, _credit, _evalCount, _evalNames, _evalWeights);
     }
 
-    function addCourse(uint _index, string memory _name, uint _credit, uint _hours, string memory
-        _code, uint _id, uint count, uint[] memory _weights, string[] memory _names) public {
-        terms[_index].addCourse(_name, _credit, _hours, _code, _id, count, _weights, _names);
+    function setCourseOverallGrade(uint _termIndex, uint _courseID, uint _grade) public {
+        for (uint i = 0; i < terms[_termIndex].getCourses().length; i++) {
+            if (terms[_termIndex].getCourses()[i].getCourseID() == _courseID) {
+                terms[_termIndex].getCourses()[i].setOverallGrade(_grade);
+            }
+        }
     }
 
+    function setCourseLetterGrade(uint _termIndex, uint _courseID, string memory _letterGrade) public {
+        for (uint i = 0; i < terms[_termIndex].getCourses().length; i++) {  
+            if (terms[_termIndex].getCourses()[i].getCourseID() == _courseID) {
+                terms[_termIndex].getCourses()[i].setLetterGrade(_letterGrade);
+            }
+        }
+    }
 
-    function setCourseGrade(uint _index, uint _id, uint _grade) public {
-        for (uint i = 0; i < terms[_index].getCourses().length; i++) {
-            if (terms[_index].getCourses()[i].getCourseID() == _id) {
-                terms[_index].getCourses()[i].setGrade(_grade);
+    function setCourseEvalGrade(uint _termIndex, uint _courseID, uint _evalIndex, uint _evalGrade) public {
+        for (uint i = 0; i < terms[_termIndex].getCourses().length; i++) {  
+            if (terms[_termIndex].getCourses()[i].getCourseID() == _courseID) {
+                terms[_termIndex].getCourses()[i].setEvaluationGrade(_evalIndex, _evalGrade);
             }
         }
     }
