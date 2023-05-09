@@ -32,5 +32,10 @@ let input = {
 };
 
 let output = JSON.parse(solc.compile(JSON.stringify(input)));
-//console.log(output.contracts['Student.sol']['Student'].evm.bytecode);
-module.exports = output.contracts['Student.sol']['Student'];
+const contracts = {
+    Student: output.contracts['Student.sol']['Student'],
+    Term: output.contracts['Term.sol']['Term'],
+    Course: output.contracts['Course.sol']['Course']
+};
+
+module.exports = contracts;
