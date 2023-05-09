@@ -13,7 +13,7 @@ contract Course {
     string public courseCode;
     string public instructor;
     uint public credit;
-    uint public overallGrade;
+    string public overallGrade;
     string public letterGrade;
     uint public evaluationCount;
     EvaluationCriterion[] public evaluationCriteria;
@@ -44,7 +44,7 @@ contract Course {
         }
     }
 
-    function setOverallGrade(uint _overallGrade) public{
+    function setOverallGrade(string memory _overallGrade) public{
         overallGrade = _overallGrade;
     }
 
