@@ -47,9 +47,15 @@ app.post('/add-term', (req, res) => {
     addTerm(studentId, year, season).then(() => res.send('Add term request received'));
 });
 
-app.post('/course-eval-grade', (req, res) => {
-    const {studentId, termIndex, courseID, evalIndex, evalGrade} = req.body;
-    setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then(msg => res.send(msg));
+app.post('/course-eval-grade', async (req, res) => {
+    const { studentId, termIndex, courseID, evalIndex, evalGrade } = req.body;
+    try {
+        const msg = await setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade);
+        res.send(msg);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal server error');
+    }
 });
 
 app.post('/add-course', (req, res) => {
@@ -105,32 +111,30 @@ const setCourseLetterGrade = async (studentContract, termIndex, courseID, letter
 }
 
 const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, evalGrade) => {
-    let studentAddress = '';
-    await studentsRef.get().then((querySnapshot) => {
+    try {
+        let studentAddress = '';
+        const querySnapshot = await studentsRef.get();
         querySnapshot.forEach((doc) => {
             if (studentNo == doc.id) {
                 studentAddress = doc.data().contract;
             }
         });
-    })
-        .catch((error) => {
-            console.log(`Error getting documents: ${error}`);
-        });
 
-    const contract = new web3.eth.Contract(studentAbi, studentAddress);
-    const accounts = await web3.eth.getAccounts();
-    const sender = accounts[0];
-    
+        const contract = new web3.eth.Contract(studentAbi, studentAddress);
+        const accounts = await web3.eth.getAccounts();
+        const sender = accounts[0];
 
-    await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({from: sender}, (error, result) => {
-        if (error) {
-            console.error(error());
-        } else {
-            console.log(result);
-        }
-    });
-    return await getEvalInfo(contract, termIndex, courseID);
-}
+        const result = await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({ from: sender });
+        console.log(result);
+
+        const evalInfo = await getEvalInfo(contract, termIndex, courseID);
+        return evalInfo;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error setting course evaluation grade');
+    }
+};
+
 
 const addCourse = async (studentNo, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames) => {
     const weightsArray = evalWeights.split(" ");
@@ -215,43 +219,39 @@ function getLetterGrade(grade) {
 }
 
 const getEvalInfo = async (studentContract, termIndex, courseID) => {
-    const accounts = await web3.eth.getAccounts();
-    await studentContract.methods.terms(termIndex).call( async (error, result) => {
-        if (error) {
-            console.error(error);
-        } else {
-            const term = new web3.eth.Contract(termAbi, result);
-            await term.methods.getCourses().call({from: accounts[0] }, async (error, result) => {
-                console.log("got term 2md");
-                if (error) {
-                    console.error(error);
-                } else {
-                    for (let j = 0; j < result.length; j++) {
-                        console.log("got courses");
-                        const course = new web3.eth.Contract(courseAbi, result[j]);
-                        let totalScore = 0;
-                        if (parseInt(await course.methods.getCourseID().call()) === courseID) {
-                            console.log("got the course")
-                            const evaluationCount = await course.methods.evaluationCount().call();
-                            for (let i = 0; i < evaluationCount; i++) {
-                                const evalCriterion = await course.methods.evaluationCriteria(i).call();
-                                const evalWeight = evalCriterion.weight;
-                                const evalGrade = evalCriterion.grade;
-                                const evalName = evalCriterion.name;
-                                console.log(evalName + ": " + evalGrade);
-                                if (parseInt(evalGrade) === 101) {
-                                    return 'Not all grades are set!';
-                                }
-                                totalScore += evalGrade * (evalWeight / 100);
-                            }
-                            let letterGrade = getLetterGrade(totalScore);
-                            await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
-                            await setCourseOverallGrade(studentContract, termIndex, courseID, totalScore, accounts[0]);
-                            return 'All grades are now set!';
-                        }
+    try {
+        const accounts = await web3.eth.getAccounts();
+        const result = await studentContract.methods.terms(termIndex).call();
+        const term = new web3.eth.Contract(termAbi, result);
+        const courses = await term.methods.getCourses().call({ from: accounts[0] });
+        console.log('got term 2nd');
+        for (let j = 0; j < courses.length; j++) {
+            console.log('got courses');
+            const course = new web3.eth.Contract(courseAbi, courses[j]);
+            const courseId = parseInt(await course.methods.getCourseID().call());
+            if (courseId === courseID) {
+                console.log('got the course');
+                const evaluationCount = await course.methods.evaluationCount().call();
+                let totalScore = 0;
+                for (let i = 0; i < evaluationCount; i++) {
+                    const evalCriterion = await course.methods.evaluationCriteria(i).call();
+                    const evalWeight = evalCriterion.weight;
+                    const evalGrade = evalCriterion.grade;
+                    const evalName = evalCriterion.name;
+                    console.log(evalName + ': ' + evalGrade);
+                    if (parseInt(evalGrade) === 101) {
+                        return 'Not all grades are set!';
                     }
+                    totalScore += evalGrade * (evalWeight / 100);
                 }
-            });
+                const letterGrade = getLetterGrade(totalScore);
+                await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
+                await setCourseOverallGrade(studentContract, termIndex, courseID, totalScore, accounts[0]);
+                return 'All grades are now set!';
+            }
         }
-    });
-}
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error getting evaluation info');
+    }
+};
