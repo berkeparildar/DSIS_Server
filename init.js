@@ -107,7 +107,7 @@ const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, eva
     let studentAddress = '';
     await studentsRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            if (studentNo === doc.id) {
+            if (studentNo == doc.id) {
                 console.log(`${doc.id} => ${doc.data().contract}`);
                 studentAddress = doc.data().contract;
                 console.log(studentAddress);
@@ -299,3 +299,5 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         }
     });
 }*/
+
+setCourseEvalGrade(273, 0, 323, 1, 18);
