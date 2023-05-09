@@ -244,7 +244,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                 }
                 const letterGrade = getLetterGrade(totalScore);
                 await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
-                await setCourseOverallGrade(studentContract, termIndex, courseID, Math.round(totalScore), accounts[0]);
+                await setCourseOverallGrade(studentContract, termIndex, courseID, Math.round(totalScore).toString() , accounts[0]);
                 return 'All grades are now set!';
             }
         }
