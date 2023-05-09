@@ -224,9 +224,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         const result = await studentContract.methods.terms(termIndex).call();
         const term = new web3.eth.Contract(termAbi, result);
         const courses = await term.methods.getCourses().call({ from: accounts[0] });
-        console.log('got term 2nd');
         for (let j = 0; j < courses.length; j++) {
-            console.log('got courses');
             const course = new web3.eth.Contract(courseAbi, courses[j]);
             const courseId = parseInt(await course.methods.getCourseID().call());
             if (courseId == courseID) {
@@ -246,7 +244,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                 }
                 const letterGrade = getLetterGrade(totalScore);
                 await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
-                await setCourseOverallGrade(studentContract, termIndex, courseID, totalScore, accounts[0]);
+                await setCourseOverallGrade(studentContract, termIndex, courseID, Math.round(totalScore), accounts[0]);
                 return 'All grades are now set!';
             }
         }
