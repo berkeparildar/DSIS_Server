@@ -48,8 +48,7 @@ app.post('/add-term', (req, res) => {
 
 app.post('/course-eval-grade', (req, res) => {
     const {studentId, termIndex, courseID, evalIndex, evalGrade} = req.body;
-    setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then( async contract =>
-        await getEvalInfo(contract, termIndex, courseID)).then(msg => res.send(msg));
+    setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then(msg => res.send(msg));
 });
 
 app.post('/add-course', (req, res) => {
@@ -130,7 +129,8 @@ const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, eva
             console.log(result);
         }
     });
-    return contract;
+    let msg = await getEvalInfo(contract, termIndex, courseID);
+    return msg;
 }
 
 const addCourse = async (studentNo, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames) => {
@@ -219,10 +219,10 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
     console.log("started");
     const accounts = await web3.eth.getAccounts();
     await studentContract.methods.terms(termIndex).call({ from: accounts[0] }, (error, result) => {
-        console.log("got term")
         if (error) {
             console.error(error);
         } else {
+            console.log("got term")
             const term = new web3.eth.Contract(termAbi, result);
             term.methods.getCourses().call({ from: accounts[0] }, async (error, result) => {
                 if (error) {
