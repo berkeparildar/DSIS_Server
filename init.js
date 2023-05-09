@@ -218,6 +218,47 @@ function getLetterGrade(grade) {
 const getEvalInfo = async (studentContract, termIndex, courseID) => {
     console.log("started");
     const accounts = await web3.eth.getAccounts();
+    await studentContract.methods.terms(termIndex).call({ from: accounts[0] }, (error, result) => {
+        if (error) {
+            console.error(error);
+        } else {
+            console.log("got term");
+            const term = new web3.eth.Contract(termAbi, result);
+            term.methods.getCourses().call({ from: accounts[0] }, async (error, result) => {
+                if (error) {
+                    console.error(error);
+                } else {
+                    for (let j = 0; j < result.length; j++) {
+                        console.log("got courses");
+                        const course = new web3.eth.Contract(courseAbi, result[j]);
+                        let totalScore = 0;
+                        if (parseInt(await course.methods.getCourseID().call()) === courseID){
+                            console.log("got the course")
+                            const evaluationCount = await course.methods.evaluationCount().call();
+                            for (let i = 0; i < evaluationCount; i++) {
+                                const evalCriterion = await course.methods.evaluationCriteria(i).call();
+                                const evalWeight = evalCriterion.weight;
+                                const evalGrade = evalCriterion.grade;
+                                const evalName = evalCriterion.name;
+                                console.log(evalName + ": " + evalGrade);
+                                if (parseInt(evalGrade) === 101){
+                                    return 'Not all grades are set!';
+                                }
+                                totalScore += evalGrade * (evalWeight / 100);
+                            }
+                            return 'All grades are now set!';
+                        }
+                    }
+                }
+            });
+        }
+    });
+}
+
+/*
+const getEvalInfo = async (studentContract, termIndex, courseID) => {
+    console.log("started");
+    const accounts = await web3.eth.getAccounts();
     await studentContract.methods.terms(termIndex).call({ from: accounts[0] }, async (error, result) => {
         if (error) {
             console.error(error);
@@ -257,4 +298,4 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
             });
         }
     });
-}
+}*/
