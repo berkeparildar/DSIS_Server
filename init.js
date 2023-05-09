@@ -299,5 +299,3 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         }
     });
 }*/
-
-setCourseEvalGrade(273, 0, 323, 1, 18);
