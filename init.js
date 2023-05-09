@@ -222,7 +222,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         if (error) {
             console.error(error);
         } else {
-            console.log("got term")
+            console.log("got term");
             const term = new web3.eth.Contract(termAbi, result);
             term.methods.getCourses().call({ from: accounts[0] }, async (error, result) => {
                 if (error) {
