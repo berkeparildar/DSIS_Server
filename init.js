@@ -90,18 +90,8 @@ const enroll = async (name, number, faculty, department, regYear) => {
     return address;
 }
 
-const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade, sender) => {
-    await studentContract.methods.setCourseOverallGrade(termIndex, courseID, grade).send({from: sender}, (error, result) => {
-        if (error) {
-            console.error(error());
-        } else {
-            console.log(result);
-        }
-    });
-}
-
-const setCourseLetterGrade = async (studentContract, termIndex, courseID, letterGrade, sender) => {
-    await studentContract.methods.setCourseLetterGrade(termIndex, courseID, letterGrade).send({from: sender}, (error, result) => {
+const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade, letterGrade, sender) => {
+    await studentContract.methods.setCourseOverallGrade(termIndex, courseID, grade, letterGrade).send({from: sender}, (error, result) => {
         if (error) {
             console.error(error());
         } else {
@@ -123,18 +113,13 @@ const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, eva
         const contract = new web3.eth.Contract(studentAbi, studentAddress);
         const accounts = await web3.eth.getAccounts();
         const sender = accounts[0];
-
-        const result = await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({ from: sender });
-        console.log(result);
-
-        const evalInfo = await getEvalInfo(contract, termIndex, courseID);
-        return evalInfo;
+        await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({ from: sender });
+        await getEvalInfo(contract, termIndex, courseID);
     } catch (error) {
         console.error(error);
         throw new Error('Error setting course evaluation grade');
     }
 };
-
 
 const addCourse = async (studentNo, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames) => {
     const weightsArray = evalWeights.split(" ");
@@ -244,8 +229,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                 }
                 const letterGrade = getLetterGrade(totalScore);
                 const overAllGrade = Math.round(totalScore).toString();
-                await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
-                await setCourseOverallGrade(studentContract, termIndex, courseID, overAllGrade, accounts[0]);
+                await setCourseOverallGrade(studentContract, termIndex, courseID, overAllGrade, letterGrade, accounts[0]);
                 return 'All grades are now set!';
             }
         }

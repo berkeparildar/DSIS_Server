@@ -44,18 +44,15 @@ contract Course {
         }
     }
 
-    function setOverallGrade(string memory _overallGrade) public{
+    function setOverallGrade(string memory _overallGrade, string memory _letterGrade) public{
         overallGrade = _overallGrade;
+        letterGrade = _letterGrade;
     }
 
     function getOverallGrade() public view returns (string memory) {
         return overallGrade;
     }
-
-    function setLetterGrade(string memory _letterGrade) public{
-        letterGrade = _letterGrade;
-    }
-
+    
     function getLetterGrade() public view returns (string memory) {
         return letterGrade;
     }
