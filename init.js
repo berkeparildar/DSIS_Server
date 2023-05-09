@@ -85,7 +85,7 @@ const enroll = async (name, number, faculty, department, regYear) => {
 }
 
 const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade, sender) => {
-    await studentContract.methods.setCourseOverallGrade(termIndex, courseID, grade).send({from: sender}, (error, result) => {
+    await studentContract.methods.setOverallGrade(termIndex, courseID, grade).send({from: sender}, (error, result) => {
         if (error) {
             console.error(error());
         } else {
@@ -95,7 +95,7 @@ const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade
 }
 
 const setCourseLetterGrade = async (studentContract, termIndex, courseID, letterGrade, sender) => {
-    await studentContract.methods.setCourseLetterGrade(termIndex, courseID, letterGrade).send({from: sender}, (error, result) => {
+    await studentContract.methods.setLetterGrade(termIndex, courseID, letterGrade).send({from: sender}, (error, result) => {
         if (error) {
             console.error(error());
         } else {
