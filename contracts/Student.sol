@@ -54,7 +54,7 @@ contract Student {
         terms[_termIndex].addCourse(_courseName, _courseID, _courseCode, _instructor, _credit, _evalCount, _evalNames, _evalWeights);
     }
 
-    function setCourseOverallGrade(uint _termIndex, uint _courseID, uint _grade) public {
+    function setCourseOverallGrade(uint _termIndex, uint _courseID, string memory _grade) public {
         for (uint i = 0; i < terms[_termIndex].getCourses().length; i++) {
             if (terms[_termIndex].getCourses()[i].getCourseID() == _courseID) {
                 terms[_termIndex].getCourses()[i].setOverallGrade(_grade);

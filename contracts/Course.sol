@@ -48,7 +48,7 @@ contract Course {
         overallGrade = _overallGrade;
     }
 
-    function getOverallGrade() public view returns (uint) {
+    function getOverallGrade() public view returns (string memory) {
         return overallGrade;
     }
 
