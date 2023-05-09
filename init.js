@@ -229,7 +229,7 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
             console.log('got courses');
             const course = new web3.eth.Contract(courseAbi, courses[j]);
             const courseId = parseInt(await course.methods.getCourseID().call());
-            if (courseId === courseID) {
+            if (courseId == courseID) {
                 console.log('got the course');
                 const evaluationCount = await course.methods.evaluationCount().call();
                 let totalScore = 0;
