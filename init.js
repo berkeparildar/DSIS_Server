@@ -17,8 +17,7 @@ app.use(json());
 
 const provider = new HDWalletProvider(process.env.MNEMONIC, process.env.NETWORK_URL);
 const web3 = new Web3(provider);
-const accounts = await web3.eth.getAccounts();
-const sender = accounts[0];
+
 
 const serviceAccount = {
     "type": "service_account",
@@ -119,6 +118,8 @@ const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, eva
         });
 
     const contract = new web3.eth.Contract(studentAbi, studentAddress);
+    const accounts = await web3.eth.getAccounts();
+    const sender = accounts[0];
     
 
     await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({from: sender}, (error, result) => {
