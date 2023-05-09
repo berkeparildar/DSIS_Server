@@ -216,8 +216,10 @@ function getLetterGrade(grade) {
 }
 
 const getEvalInfo = async (studentContract, termIndex, courseID) => {
+    console.log("started");
     const accounts = await web3.eth.getAccounts();
     await studentContract.methods.terms(termIndex).call({ from: accounts[0] }, (error, result) => {
+        console.log("got term")
         if (error) {
             console.error(error);
         } else {
@@ -227,9 +229,11 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                     console.error(error);
                 } else {
                     for (let j = 0; j < result.length; j++) {
+                        console.log("got courses");
                         const course = new web3.eth.Contract(courseAbi, result[j]);
                         let totalScore = 0;
                         if (parseInt(await course.methods.getCourseID().call()) === courseID){
+                            console.log("got the course")
                             const evaluationCount = await course.methods.evaluationCount().call();
                             for (let i = 0; i < evaluationCount; i++) {
                                 const evalCriterion = await course.methods.evaluationCriteria(i).call();
