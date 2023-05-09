@@ -243,8 +243,9 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                     totalScore += evalGrade * (evalWeight / 100);
                 }
                 const letterGrade = getLetterGrade(totalScore);
+                const overAllGrade = Math.round(totalScore).toString();
                 await setCourseLetterGrade(studentContract, termIndex, courseID, letterGrade, accounts[0]);
-                await setCourseOverallGrade(studentContract, termIndex, courseID, Math.round(totalScore).toString() , accounts[0]);
+                await setCourseOverallGrade(studentContract, termIndex, courseID, overAllGrade, accounts[0]);
                 return 'All grades are now set!';
             }
         }
