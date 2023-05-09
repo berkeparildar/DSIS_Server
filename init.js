@@ -48,8 +48,8 @@ app.post('/add-term', (req, res) => {
 
 app.post('/course-eval-grade', (req, res) => {
     const {studentId, termIndex, courseID, evalIndex, evalGrade} = req.body;
-    setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then( contract =>
-        getEvalInfo(contract, termIndex, courseID).then( msg => res.send(msg)));
+    setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade).then( async contract =>
+        await getEvalInfo(contract, termIndex, courseID).then(msg => res.send(msg)));
 });
 
 app.post('/add-course', (req, res) => {
