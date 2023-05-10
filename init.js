@@ -81,12 +81,20 @@ const deploy = async (name, id, faculty, department, regYear) => {
 }
 
 const enroll = async (name, number, faculty, department, regYear) => {
+    name = name.toLowerCase();
     const nameArray = name.split(' ');
     const address = await deploy(name, number, faculty, department, regYear);
     const userRef = db.collection('students').doc(number);
+    const email = nameArray[0] + '.' + nameArray[1] + '@dsis.com'
     await userRef.set({
-        name: name, contract: address, email: nameArray[0] + '.' + nameArray[1] + '@dsis.com',
-    })
+        name: name, contract: address, email: email,
+    });
+    const user  = await admin.auth().createUser(
+        {
+            email: email,
+            password: number,
+        }
+    );
     return address;
 }
 
