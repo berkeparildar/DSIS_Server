@@ -6,6 +6,8 @@ const studentEvm = contracts.Student.evm.bytecode.object;
 const termAbi = contracts.Term.abi;
 const courseAbi = contracts.Course.abi;
 const admin = require('firebase-admin');
+const firebase = require('firebase/app');
+require('firebase/auth');
 require('dotenv').config();
 
 const express = require('express');
@@ -39,7 +41,8 @@ const studentsRef = db.collection('students');
 
 app.post('/signup', (req, res) => {
     const {name, schoolId, faculty, department, regYear} = req.body;
-    enroll(name, schoolId, faculty, department, regYear).then(contractAddress => res.send(`Enrollment request received, address at ${contractAddress}`));
+    enroll(name, schoolId, faculty, department, regYear).then(contractAddress => 
+        res.send(`Enrollment request received, address at ${contractAddress}`)).catch(Error => res.status(400).send(Error));
 });
 
 app.post('/add-term', (req, res) => {
@@ -89,13 +92,13 @@ const enroll = async (name, number, faculty, department, regYear) => {
     await userRef.set({
         name: name, contract: address, email: email,
     });
-    const user  = await admin.auth().createUser(
-        {
-            email: email,
-            password: number,
-        }
-    );
-    return address;
+   try {
+       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, number);
+       return address;
+   }
+   catch (error){
+       return error.message
+   }
 }
 
 const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade, letterGrade, sender) => {
