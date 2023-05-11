@@ -6,8 +6,6 @@ const studentEvm = contracts.Student.evm.bytecode.object;
 const termAbi = contracts.Term.abi;
 const courseAbi = contracts.Course.abi;
 const admin = require('firebase-admin');
-const firebase = require('firebase/app');
-require('firebase/auth');
 require('dotenv').config();
 
 const express = require('express');
@@ -16,10 +14,8 @@ const app = express();
 app.use(urlencoded({extended: true}));
 app.use(json());
 
-
 const provider = new HDWalletProvider(process.env.MNEMONIC, process.env.NETWORK_URL);
 const web3 = new Web3(provider);
-
 
 const serviceAccount = {
     "type": "service_account",
@@ -40,7 +36,7 @@ const db = admin.firestore();
 const studentsRef = db.collection('students');
 
 app.post('/signup', (req, res) => {
-    const {name, schoolId, faculty, department, regYear} = req.body;
+    let {name, schoolId, faculty, department, regYear} = req.body;
     enroll(name, schoolId, faculty, department, regYear).then(contractAddress => 
         res.send(`Enrollment request received, address at ${contractAddress}`)).catch(Error => res.status(400).send(Error));
 });
@@ -51,9 +47,9 @@ app.post('/add-term', (req, res) => {
 });
 
 app.post('/course-eval-grade', async (req, res) => {
-    const { studentId, termIndex, courseID, evalIndex, evalGrade } = req.body;
+    let { studentId, termIndex, courseID, evalIndex, evalGrade } = req.body;
     try {
-        const msg = await setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade);
+        let msg = await setCourseEvalGrade(studentId, termIndex, courseID, evalIndex, evalGrade);
         res.send(msg);
     } catch (error) {
         console.error(error);
@@ -85,15 +81,15 @@ const deploy = async (name, id, faculty, department, regYear) => {
 
 const enroll = async (name, number, faculty, department, regYear) => {
     name = name.toLowerCase();
-    const nameArray = name.split(' ');
-    const address = await deploy(name, number, faculty, department, regYear);
-    const userRef = db.collection('students').doc(number);
-    const email = nameArray[0] + '.' + nameArray[1] + '@dsis.com'
+    let nameArray = name.split(' ');
+    let address = await deploy(name, number, faculty, department, regYear);
+    let userRef = db.collection('students').doc(number);
+    let email = nameArray[0] + '.' + nameArray[1] + '@dsis.com'
     await userRef.set({
         name: name, contract: address, email: email,
     });
    try {
-       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, number);
+       await createUser(email, number.toString());
        return address;
    }
    catch (error){
@@ -101,6 +97,21 @@ const enroll = async (name, number, faculty, department, regYear) => {
    }
 }
 
+async function createUser(email, password) {
+    try {
+        const userRecord = await admin.auth().createUser({
+            email: email,
+            password: password,
+        });
+        console.log('Successfully created new user:', userRecord.uid);
+        return userRecord;
+    } catch (error) {
+        console.error('Error creating new user:', error);
+        throw error;
+    }
+}
+
+// Call the createUser function with the email and password argumen
 const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade, letterGrade, sender) => {
     await studentContract.methods.setCourseOverallGrade(termIndex, courseID, grade, letterGrade).send({from: sender}, (error, result) => {
         if (error) {
@@ -238,8 +249,8 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
                     }
                     totalScore += evalGrade * (evalWeight / 100);
                 }
-                const letterGrade = getLetterGrade(totalScore);
-                const overAllGrade = Math.round(totalScore).toString();
+                let letterGrade = getLetterGrade(totalScore);
+                let overAllGrade = Math.round(totalScore).toString();
                 await setCourseOverallGrade(studentContract, termIndex, courseID, overAllGrade, letterGrade, accounts[0]);
                 return 'All grades are now set!';
             }
@@ -249,3 +260,5 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         throw new Error('Error getting evaluation info');
     }
 };
+
+enroll("bp zort", "2012999", "engineering", "ce", "2019");
