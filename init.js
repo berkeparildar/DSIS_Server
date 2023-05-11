@@ -260,5 +260,3 @@ const getEvalInfo = async (studentContract, termIndex, courseID) => {
         throw new Error('Error getting evaluation info');
     }
 };
-
-enroll("bp zort", "2012999", "engineering", "ce", "2019");
