@@ -49,6 +49,10 @@ contract Course {
         letterGrade = _letterGrade;
     }
 
+    function getEvaluationCriteria() public view returns (EvaluationCriterion[] memory) {
+        return evaluationCriteria;
+    }
+    
     function getOverallGrade() public view returns (string memory) {
         return overallGrade;
     }
