@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-struct EvaluationCriterion {
+    struct EvaluationCriterion {
         string name;
         uint weight;
         uint grade;
     }
-    
+
 contract Course {
     string public name;
     uint public courseID;
     string public courseCode;
+    uint public attendance;
     string public instructor;
     uint public credit;
     string public overallGrade;
@@ -32,6 +33,7 @@ contract Course {
         courseID = _courseID;
         courseCode = _courseCode;
         instructor = _instructor;
+        attendance = 0;
         credit = _credit;
         evaluationCount = _evalCount;
 
@@ -49,14 +51,22 @@ contract Course {
         letterGrade = _letterGrade;
     }
 
+    function upAttendance() public {
+        attendance = attendance + 1;
+    }
+
     function getEvaluationCriteria() public view returns (EvaluationCriterion[] memory) {
         return evaluationCriteria;
     }
-    
+
     function getOverallGrade() public view returns (string memory) {
         return overallGrade;
     }
-    
+
+    function getAttendance() view public returns (uint) {
+        return attendance;
+    }
+
     function getLetterGrade() public view returns (string memory) {
         return letterGrade;
     }

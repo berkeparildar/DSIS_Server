@@ -9,8 +9,7 @@ contract Student {
     string public faculty;
     string public department;
     uint public regYear;
-    uint public attendance;
-    uint256 public id;
+    uint256 id;
     Term[] public terms;
 
     constructor(string memory _name, uint _id, string memory _faculty, string memory _department, uint _regYear) {
@@ -19,7 +18,6 @@ contract Student {
         faculty = _faculty;
         department = _department;
         regYear = _regYear;
-        attendance = 0;
     }
 
     function getName()view public returns (string memory) {
@@ -38,10 +36,6 @@ contract Student {
         return regYear;
     }
 
-    function getAttendance() view public returns (uint) {
-        return attendance;
-    }
-
     function getID() view public returns (uint) {
         return id;
     }
@@ -50,8 +44,12 @@ contract Student {
         return terms;
     }
 
-    function upAttendance() public {
-        attendance++;
+    function upAttendance(uint _termIndex, uint _courseID) public {
+        for (uint i = 0; i < terms[_termIndex].getCourses().length; i++) {
+            if (terms[_termIndex].getCourses()[i].getCourseID() == _courseID) {
+                terms[_termIndex].getCourses()[i].upAttendance();
+            }
+        }
     }
 
     function addTerm(uint _year, string memory _season) public {

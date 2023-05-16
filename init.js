@@ -65,8 +65,8 @@ app.post('/add-course', (req, res) => {
 })
 
 app.post('/attendance', (req, res) => {
-    const {schoolId} = req.body;
-    upAttendance(schoolId).then(() => res.send('Attendance increased'));
+    const {schoolId, termIndex, courseID} = req.body;
+    upAttendance(schoolId, termIndex, courseID).then(() => res.send('Attendance increased'));
 })
 app.listen(process.env.port || 3000, () => {
     console.log('Server started on port 3000');
@@ -126,11 +126,11 @@ const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade
     });
 }
 
-const upAttendance = async (studentNo) => {
+const upAttendance = async (studentNo, termIndex, courseID) => {
     const studentContract = await getContract(studentNo);
     const accounts = await web3.eth.getAccounts();
     const sender = accounts[0];
-    await studentContract.methods.upAttendance().send({from: sender}, (error, result) => {
+    await studentContract.methods.upAttendance(termIndex, courseID).send({from: sender}, (error, result) => {
         if (error) {
             console.error(error());
         } else {
@@ -172,7 +172,7 @@ const getContract = async (studentId) => {
     await studentsRef.get()
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                if (studentNo === doc.id) {
+                if (studentId === doc.id) {
                     console.log(`${doc.id} => ${doc.data().contract}`);
                     studentAddress = doc.data().contract;
                     console.log(studentAddress);
