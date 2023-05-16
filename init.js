@@ -182,7 +182,8 @@ const getContract = async (studentId) => {
         .catch((error) => {
             console.log(`Error getting documents: ${error}`);
         });
-    return web3.eth.Contract(studentAbi, studentAddress);
+    const contract = web3.eth.Contract(studentAbi, studentAddress);
+    return contract;
 }
 
 const addTerm = async (studentNo, year, season) => {
