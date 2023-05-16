@@ -64,6 +64,10 @@ app.post('/add-course', (req, res) => {
     addCourse(schoolId, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalNames, evalWeights).then(() => res.send('Add course request received'));
 })
 
+app.post('/attendance', (req, res) => {
+    const {schoolId} = req.body;
+    upAttendance(schoolId).then(() => res.send('Attendance increased'));
+})
 app.listen(process.env.port || 3000, () => {
     console.log('Server started on port 3000');
 })
@@ -122,17 +126,22 @@ const setCourseOverallGrade = async (studentContract, termIndex, courseID, grade
     });
 }
 
+const upAttendance = async (studentNo) => {
+    const studentContract = await getContract(studentNo);
+    const accounts = await web3.eth.getAccounts();
+    const sender = accounts[0];
+    await studentContract.methods.upAttendance().send({from: sender}, (error, result) => {
+        if (error) {
+            console.error(error());
+        } else {
+            console.log(result);
+        }
+    });
+}
+
 const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, evalGrade) => {
     try {
-        let studentAddress = '';
-        const querySnapshot = await studentsRef.get();
-        querySnapshot.forEach((doc) => {
-            if (studentNo == doc.id) {
-                studentAddress = doc.data().contract;
-            }
-        });
-
-        const contract = new web3.eth.Contract(studentAbi, studentAddress);
+        const contract = await getContract(studentNo);
         const accounts = await web3.eth.getAccounts();
         const sender = accounts[0];
         await contract.methods.setCourseEvalGrade(termIndex, courseID, evalIndex, evalGrade).send({ from: sender });
@@ -146,25 +155,9 @@ const setCourseEvalGrade = async (studentNo, termIndex, courseID, evalIndex, eva
 const addCourse = async (studentNo, termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, evalWeights, evalNames) => {
     const weightsArray = evalWeights.split(" ");
     const namesArray = evalNames.split(" ");
-    let studentAddress = '';
-    await studentsRef.get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                if (studentNo === doc.id) {
-                    console.log(`${doc.id} => ${doc.data().contract}`);
-                    studentAddress = doc.data().contract;
-                    console.log(studentAddress);
-                }
-            });
-        })
-        .catch((error) => {
-            console.log(`Error getting documents: ${error}`);
-        });
-
-    const contract = new web3.eth.Contract(studentAbi, studentAddress);
+    const contract = await getContract(studentNo);
     const accounts = await web3.eth.getAccounts();
     const sender = accounts[0];
-
     await contract.methods.addCourse(termIndex, courseName, courseID, courseCode, instructor, credit, evalCount, weightsArray, namesArray).send({from: sender}, (error, result) => {
         if (error) {
             console.error(error());
@@ -174,7 +167,7 @@ const addCourse = async (studentNo, termIndex, courseName, courseID, courseCode,
     });
 }
 
-const addTerm = async (studentNo, year, season) => {
+const getContract = async (studentId) => {
     let studentAddress = '';
     await studentsRef.get()
         .then((querySnapshot) => {
@@ -189,8 +182,11 @@ const addTerm = async (studentNo, year, season) => {
         .catch((error) => {
             console.log(`Error getting documents: ${error}`);
         });
-    console.log(studentAddress);
-    const contract = new web3.eth.Contract(studentAbi, studentAddress);
+    return web3.eth.Contract(studentAbi, studentAddress);
+}
+
+const addTerm = async (studentNo, year, season) => {
+    const contract = await getContract(studentNo);
     const accounts = await web3.eth.getAccounts();
     const sender = accounts[0];
     await contract.methods.addTerm(year, season).send({from: sender}, (error, result) => {
